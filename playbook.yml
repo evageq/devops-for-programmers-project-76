@@ -1,3 +1,4 @@
+---
 - name: Deploy app
   hosts: all
   tags: deploy
@@ -20,3 +21,58 @@
         published_ports:
           - 3000:3000
       become: true
+
+- name: Setup docker
+  hosts: all
+  become: true
+  tags: setup
+
+  tasks:
+    - name: Install aptitude
+      ansible.builtin.apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+
+    - name: Install required system packages
+      ansible.builtin.apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+    - name: Install Docker Module for Python
+      ansible.builtin.pip:
+        name: docker
+
+- name: Setup Datadog
+  hosts: webservers
+  become: true
+  tags: setup
+
+  vars:
+    datadog_site: "datadoghq.eu"
+
+  tasks:
+    - name: Import the Datadog Agent role from the Datadog collection
+      import_role:
+        name: datadog.dd.agent
+
+    - name: Set HTTP check
+      ansible.builtin.template: 
+        src: "datadog.j2"
+        dest: "/etc/datadog-agent/conf.d/http_check.d/conf.yaml"
+      notify:
+        - restart datadog
+
+  handlers:
+    - name: restart datadog
+      ansible.builtin.service:
+        name: datadog-agent
+        state: restarted

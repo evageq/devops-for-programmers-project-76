@@ -1,6 +1,5 @@
 INV_FILE=inventory.ini
-SETUP_PB=playbook_setup.yml
-DEPLOY_PB=playbook.yml
+MAIN_PLAYBOOK=playbook.yml
 
 help:
 	@echo "Available targets:"
@@ -9,7 +8,7 @@ help:
 	@echo "  help     - Show this help message"
 
 setup:
-	@ansible-playbook -i ${INV_FILE} ${SETUP_PB}
+	@ansible-playbook -i ${INV_FILE} --tags setup ${MAIN_PLAYBOOK}
 
 deploy:
-	@ansible-playbook -i ${INV_FILE} ${DEPLOY_PB}
+	@ansible-playbook -i ${INV_FILE} --tags deploy ${MAIN_PLAYBOOK}
