@@ -7,7 +7,7 @@
     - name: Install aptitude
       ansible.builtin.apt:
         name: aptitude
-        state: latest
+        state: present
         update_cache: true
 
     - name: Install required system packages
