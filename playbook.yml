@@ -1,0 +1,22 @@
+- name: Deploy app
+  hosts: all
+  tags: deploy
+  vars:
+    redmine_env_file: .redmine.env
+
+  tasks:
+    - name: Create the redmine env file from template
+      ansible.builtin.template:
+        src: templates/env.j2
+        dest: "{{ redmine_env_file }}"
+
+    - name: Start redmine container
+      community.docker.docker_container:
+        name: redmine
+        image: redmine
+        env_file: "{{ redmine_env_file }}"
+        state: started
+        restart_policy: always
+        published_ports:
+          - 3000:3000
+      become: true
